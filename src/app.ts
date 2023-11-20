@@ -8,8 +8,8 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/', (req: Request, res: Response) => {
-  const a = 5;
-  res.send(a);
+  //   const a = 5;
+  res.send('hello');
 });
 
 // console.log(process.cwd());
