@@ -9,15 +9,14 @@ const createStudent = async (req: Request, res: Response) => {
     const result = await studentServices.addStudentToDB(studentData);
 
     // sending response
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: 'Student is created successfully',
       data: result,
     });
   } catch (err) {
-    console.log(err);
     if (err) {
-      res.status(400).json({
+      res.status(500).json({
         success: false,
         message: 'Student creation is failed',
         error: err,
@@ -37,7 +36,6 @@ const getAllStudents = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    console.log(err);
     if (err) {
       res.status(400).json({
         success: false,
@@ -60,7 +58,7 @@ const getStudentById = async (req: Request, res: Response) => {
     });
   } catch (err) {
     if (err) {
-      res.status(400).json({
+      res.status(404).json({
         success: false,
         message: 'student not found',
         error: err,
