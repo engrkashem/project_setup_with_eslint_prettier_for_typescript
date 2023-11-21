@@ -1,9 +1,20 @@
 import { Request, Response } from 'express';
 import { studentServices } from './student.service';
+import { joiSchemas } from './student.validation';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
     const { student: studentData } = req.body;
+
+    const { error } = joiSchemas.studentValidationSchema.validate(studentData);
+
+    if (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Student creation is failed',
+        error: error.details,
+      });
+    }
 
     // calling service function to send data to database
     const result = await studentServices.addStudentToDB(studentData);

@@ -5,11 +5,12 @@ import {
   Student,
   UserName,
 } from './student.interface';
+// import validator from 'validator';
 
 // regex for email
-const emailRegEx =
-  // eslint-disable-next-line no-useless-escape
-  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+// const emailRegEx =
+//   // eslint-disable-next-line no-useless-escape
+//   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 //sub schemas
 const userNameSchema = new Schema<UserName>({
@@ -18,14 +19,14 @@ const userNameSchema = new Schema<UserName>({
     required: [true, 'First name is required'],
     trim: true,
     maxlength: [20, 'First name length must be less than or equal to 20'],
-    validate: {
-      validator: function (value: string) {
-        const idealFirstNameFormat =
-          value.charAt(0).toUpperCase() + value.slice(1);
-        return idealFirstNameFormat === value;
-      },
-      message: 'Fist name must be capitalize',
-    },
+    // validate: {
+    //   validator: function (value: string) {
+    //     const idealFirstNameFormat =
+    //       value.charAt(0).toUpperCase() + value.slice(1);
+    //     return idealFirstNameFormat === value;
+    //   },
+    //   message: 'Fist name must be capitalize',
+    // },
   },
   middleName: { type: String, trim: true },
   lastName: {
@@ -33,6 +34,10 @@ const userNameSchema = new Schema<UserName>({
     required: [true, 'Last name is required'],
     trim: true,
     minlength: [3, 'Last name must contains at least 3 characters'],
+    // validate: {
+    //   validator: (value: string) => validator.isAlpha(value),
+    //   message: '{VALUE} is invalid. Remove numeric character.',
+    // },
   },
 });
 
@@ -103,7 +108,15 @@ const studentSchema = new Schema<Student>({
     required: [true, "Students' email is required"],
     trim: true,
     unique: true,
-    match: [emailRegEx, '{VALUE}. Invalid email format'],
+
+    //using built-in validator
+    // match: [emailRegEx, '{VALUE}. Invalid email format'],
+
+    //third party: validator
+    // validate: {
+    //   validator: (email: string) => validator.isEmail(email),
+    //   message: '{VALUE} is not valid email address',
+    // },
   },
   contactNo: {
     type: String,
