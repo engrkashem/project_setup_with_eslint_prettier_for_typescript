@@ -60,11 +60,12 @@ const getAllStudents = async (req: Request, res: Response) => {
       message: 'Student information extracted successfully',
       data: result,
     });
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     if (err) {
       res.status(400).json({
         success: false,
-        message: 'Student collection is not found',
+        message: err.message || 'Student collection is not found',
         error: err,
       });
     }
@@ -81,11 +82,34 @@ const getStudentById = async (req: Request, res: Response) => {
       message: `student of id:${studentId} is found`,
       data: result,
     });
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     if (err) {
       res.status(404).json({
         success: false,
-        message: 'student not found',
+        message: err.message || 'student not found',
+        error: err,
+      });
+    }
+  }
+};
+
+const deleteStudent = async (req: Request, res: Response) => {
+  try {
+    const { studentId } = req.params;
+    const result = await studentServices.deleteStudentFromDB(studentId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Student is deleted successfully',
+      data: result,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    if (err) {
+      res.status(400).json({
+        success: false,
+        message: err.message || 'Student deletion request is denied',
         error: err,
       });
     }
@@ -96,4 +120,5 @@ export const studentControllers = {
   createStudent,
   getAllStudents,
   getStudentById,
+  deleteStudent,
 };

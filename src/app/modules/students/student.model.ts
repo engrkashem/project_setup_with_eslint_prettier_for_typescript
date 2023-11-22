@@ -95,89 +95,106 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
   // for creating instance method
   const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
 */
-const studentSchema = new Schema<TStudent, StudentModel>({
-  id: { type: String, required: true, unique: true },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    maxlength: [20, 'password must be less than 20 characters'],
-  },
-  name: {
-    type: userNameSchema,
-    required: [true, "Students' name is required"],
-    trim: true,
-  },
-  gender: {
-    type: String,
-    enum: {
-      values: ['male', 'female', 'other'],
-      message:
-        "'{VALUE}' is not supported. Gender can only be 'male', 'female' or 'other'",
+const studentSchema = new Schema<TStudent, StudentModel>(
+  {
+    id: { type: String, required: true, unique: true },
+    password: {
+      type: String,
+      required: [true, 'Password is required'],
+      maxlength: [20, 'password must be less than 20 characters'],
     },
-    required: [true, "Students' gender is required"],
-  },
-  dateOfBirth: { type: String },
-  email: {
-    type: String,
-    required: [true, "Students' email is required"],
-    trim: true,
-    unique: true,
+    name: {
+      type: userNameSchema,
+      required: [true, "Students' name is required"],
+      trim: true,
+    },
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female', 'other'],
+        message:
+          "'{VALUE}' is not supported. Gender can only be 'male', 'female' or 'other'",
+      },
+      required: [true, "Students' gender is required"],
+    },
+    dateOfBirth: { type: String },
+    email: {
+      type: String,
+      required: [true, "Students' email is required"],
+      trim: true,
+      unique: true,
 
-    //using built-in validator
-    // match: [emailRegEx, '{VALUE}. Invalid email format'],
+      //using built-in validator
+      // match: [emailRegEx, '{VALUE}. Invalid email format'],
 
-    //third party: validator
-    // validate: {
-    //   validator: (email: string) => validator.isEmail(email),
-    //   message: '{VALUE} is not valid email address',
-    // },
+      //third party: validator
+      // validate: {
+      //   validator: (email: string) => validator.isEmail(email),
+      //   message: '{VALUE} is not valid email address',
+      // },
+    },
+    contactNo: {
+      type: String,
+      required: [
+        true,
+        "Students' contact number is required. if not then use fathers'/Mothers' number",
+      ],
+      trim: true,
+    },
+    emergencyContactNo: {
+      type: String,
+      required: [
+        true,
+        "Students' contact number is required. It will be different from Students' contact number. if not then use fathers'/Mothers' number other than Students' contact number",
+      ],
+      trim: true,
+    },
+    bloodGroup: {
+      type: String,
+      enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    },
+    presentAddress: {
+      type: String,
+      required: [true, "Students' present address is required"],
+      trim: true,
+    },
+    permanentAddress: {
+      type: String,
+      required: [true, "Students' permanent address is required"],
+      trim: true,
+    },
+    guardian: {
+      type: guardianSchema,
+      required: [true, "Guardians' information is required"],
+    },
+    localGuardian: {
+      type: localGuardianSchema,
+      required: [true, "Local guardians' information is required"],
+    },
+    profileImg: { type: String },
+    isActive: {
+      type: String,
+      enum: ['active', 'blocked'],
+      default: 'active',
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
-  contactNo: {
-    type: String,
-    required: [
-      true,
-      "Students' contact number is required. if not then use fathers'/Mothers' number",
-    ],
-    trim: true,
+  {
+    toJSON: {
+      virtuals: true,
+    },
   },
-  emergencyContactNo: {
-    type: String,
-    required: [
-      true,
-      "Students' contact number is required. It will be different from Students' contact number. if not then use fathers'/Mothers' number other than Students' contact number",
-    ],
-    trim: true,
-  },
-  bloodGroup: {
-    type: String,
-    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-  },
-  presentAddress: {
-    type: String,
-    required: [true, "Students' present address is required"],
-    trim: true,
-  },
-  permanentAddress: {
-    type: String,
-    required: [true, "Students' permanent address is required"],
-    trim: true,
-  },
-  guardian: {
-    type: guardianSchema,
-    required: [true, "Guardians' information is required"],
-  },
-  localGuardian: {
-    type: localGuardianSchema,
-    required: [true, "Local guardians' information is required"],
-  },
-  profileImg: { type: String },
-  isActive: {
-    type: String,
-    enum: ['active', 'blocked'],
-    default: 'active',
-  },
+);
+
+/* ********************* Virtual Field addition ***************************/
+studentSchema.virtual('fullName').get(function () {
+  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
 
+/*********************** Document Middleware start **************************/
 // pre save middleware/hooks
 studentSchema.pre('save', async function (next) {
   // console.log({ pre: this });
@@ -200,6 +217,32 @@ studentSchema.pre('save', async function (next) {
 studentSchema.post('save', function (studentData, next) {
   studentData.password = '';
 
+  next();
+});
+/********************* Document Middleware end *******************************/
+
+/*************************** Query Middleware start ************************/
+
+// pre find middleware/hooks
+studentSchema.pre('find', function (next) {
+  // this.find({ isDeleted: false });
+  this.find({ isDeleted: { $ne: true } }); // this means current user requested query(find in this case)
+
+  next();
+});
+studentSchema.pre('findOne', function (next) {
+  // this.find({ isDeleted: false });
+  this.findOne({ isDeleted: { $ne: true } }); // this means current user requested query(find in this case)
+
+  next();
+});
+/******************************* Query Middleware ends  *******************/
+//[ { '$match': { id: 'student125' } } ]
+/* Aggregate Middleware start  */
+studentSchema.pre('aggregate', function (next) {
+  const pipelinesArr = this.pipeline();
+  const additionalQuery = { $match: { isDeleted: { $ne: true } } };
+  pipelinesArr.unshift(additionalQuery);
   next();
 });
 
