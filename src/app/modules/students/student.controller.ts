@@ -38,11 +38,12 @@ const createStudent = async (req: Request, res: Response) => {
       message: 'Student is created successfully',
       data: result,
     });
-  } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     if (err) {
       res.status(500).json({
         success: false,
-        message: 'Student creation is failed',
+        message: err.message || 'Student creation is failed',
         error: err,
       });
     }

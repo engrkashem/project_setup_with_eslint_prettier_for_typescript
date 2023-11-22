@@ -1,10 +1,14 @@
 import { Schema, model } from 'mongoose';
+import bcrypt from 'bcrypt';
 import {
-  Guardian,
-  LocalGuardian,
-  Student,
-  UserName,
+  TGuardian,
+  TLocalGuardian,
+  TStudent,
+  // StudentMethods,
+  TUserName,
+  StudentModel,
 } from './student.interface';
+import config from '../../config';
 // import validator from 'validator';
 
 // regex for email
@@ -13,7 +17,7 @@ import {
 //   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 //sub schemas
-const userNameSchema = new Schema<UserName>({
+const userNameSchema = new Schema<TUserName>({
   firstName: {
     type: String,
     required: [true, 'First name is required'],
@@ -41,7 +45,7 @@ const userNameSchema = new Schema<UserName>({
   },
 });
 
-const guardianSchema = new Schema<Guardian>({
+const guardianSchema = new Schema<TGuardian>({
   fatherName: {
     type: String,
     required: [true, "Fathers' name is required"],
@@ -70,7 +74,7 @@ const guardianSchema = new Schema<Guardian>({
   },
 });
 
-const localGuardianSchema = new Schema<LocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: { type: String, required: [true, "Local guardians' name is required"] },
   contactNo: {
     type: String,
@@ -87,8 +91,17 @@ const localGuardianSchema = new Schema<LocalGuardian>({
 });
 
 //main schema
-const studentSchema = new Schema<Student>({
+/*
+  // for creating instance method
+  const studentSchema = new Schema<TStudent, StudentModel, StudentMethods>({
+*/
+const studentSchema = new Schema<TStudent, StudentModel>({
   id: { type: String, required: true, unique: true },
+  password: {
+    type: String,
+    required: [true, 'Password is required'],
+    maxlength: [20, 'password must be less than 20 characters'],
+  },
   name: {
     type: userNameSchema,
     required: [true, "Students' name is required"],
@@ -165,5 +178,54 @@ const studentSchema = new Schema<Student>({
   },
 });
 
+// pre save middleware/hooks
+studentSchema.pre('save', async function (next) {
+  // console.log({ pre: this });
+
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const user = this; // this refers to current requested document of student
+  /**
+   * for document middleware: this -> current incoming/requested document
+   * for query middleware: this -> current query
+   * for aggregation middleware: this -> current aggregation pipeline
+   */
+
+  // hashing password and saving inti DB
+  user.password = await bcrypt.hash(user.password, Number(config.saltRounds));
+
+  next();
+});
+
+// post save middleware/hooks
+studentSchema.post('save', function (studentData, next) {
+  studentData.password = '';
+
+  next();
+});
+
+/*
+// custom made instance method
+studentSchema.methods.isStudentExists = async function (id: string) {
+  const existingStudent = await Student.findOne({ id: id });
+
+  return existingStudent;
+};
+*/
+
+// creating static method
+/*
+studentSchema.static('isStudentExists', async function isStudentExists(id) {
+  const existingStudent = await Student.findOne({ id: id });
+
+  return existingStudent;
+});
+*/
+//alternate way
+studentSchema.statics.isStudentExists = async function (id: string) {
+  const existingStudent = await Student.findOne({ id: id });
+
+  return existingStudent;
+};
+
 // model creation
-export const StudentModel = model<Student>('Student', studentSchema); // it will create a collection named Student
+export const Student = model<TStudent, StudentModel>('Student', studentSchema); // it will create a collection named Student
