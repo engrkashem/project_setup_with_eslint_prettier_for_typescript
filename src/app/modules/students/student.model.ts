@@ -83,6 +83,7 @@ const localGuardianSchema = new Schema<LocalGuardian>({
     trim: true,
   },
   relationShipWithStudent: { type: String },
+  address: { type: String },
 });
 
 //main schema
