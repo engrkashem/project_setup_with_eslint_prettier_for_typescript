@@ -1,32 +1,22 @@
-import { NextFunction, Request, Response } from 'express';
 import { UserServices } from './user.service';
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status';
+import handleAsyncRequest from '../../utils/handleAsyncRequest';
 
-const createStudent = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { password, student: studentData } = req.body;
+const createStudent = handleAsyncRequest(async (req, res) => {
+  const { password, student: studentData } = req.body;
 
-    // calling service function to send data to database
-    const result = await UserServices.addStudentToDB(password, studentData);
+  // calling service function to send data to database
+  const result = await UserServices.addStudentToDB(password, studentData);
 
-    // sending response
-    sendResponse(res, {
-      success: true,
-      message: 'Student is created successfully',
-      data: result,
-      statusCode: httpStatus.OK,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    next(err);
-  }
-};
+  // sending response
+  sendResponse(res, {
+    success: true,
+    message: 'Student is created successfully',
+    data: result,
+    statusCode: httpStatus.OK,
+  });
+});
 
 export const UserControllers = {
   createStudent,
