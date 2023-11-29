@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
+
 import {
   TGuardian,
   TLocalGuardian,
@@ -8,7 +8,6 @@ import {
   TUserName,
   StudentModel,
 } from './student.interface';
-import config from '../../config';
 // import validator from 'validator';
 
 // regex for email
@@ -97,11 +96,12 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 */
 const studentSchema = new Schema<TStudent, StudentModel>(
   {
-    id: { type: String, required: true, unique: true },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      maxlength: [20, 'password must be less than 20 characters'],
+    id: { type: String, required: [true, 'Id is required'], unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User object id is required'],
+      unique: true,
+      ref: 'User',
     },
     name: {
       type: userNameSchema,
@@ -172,11 +172,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, "Local guardians' information is required"],
     },
     profileImg: { type: String },
-    isActive: {
-      type: String,
-      enum: ['active', 'blocked'],
-      default: 'active',
-    },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -193,33 +188,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
 studentSchema.virtual('fullName').get(function () {
   return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
 });
-
-/*********************** Document Middleware start **************************/
-// pre save middleware/hooks
-studentSchema.pre('save', async function (next) {
-  // console.log({ pre: this });
-
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // this refers to current requested document of student
-  /**
-   * for document middleware: this -> current incoming/requested document
-   * for query middleware: this -> current query
-   * for aggregation middleware: this -> current aggregation pipeline
-   */
-
-  // hashing password and saving inti DB
-  user.password = await bcrypt.hash(user.password, Number(config.saltRounds));
-
-  next();
-});
-
-// post save middleware/hooks
-studentSchema.post('save', function (studentData, next) {
-  studentData.password = '';
-
-  next();
-});
-/********************* Document Middleware end *******************************/
 
 /*************************** Query Middleware start ************************/
 
