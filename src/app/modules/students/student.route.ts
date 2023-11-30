@@ -12,4 +12,4 @@ router.get('/:studentId', studentControllers.getStudentById);
 
 router.delete('/:studentId', studentControllers.deleteStudent);
 
-export const studentRoutes = router;
+export const StudentRoutes = router;
