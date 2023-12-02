@@ -15,13 +15,30 @@ const getAllStudents = handleAsyncRequest(async (req, res) => {
   });
 });
 
-const getStudentById = handleAsyncRequest(async (req, res) => {
+const getSingleStudent = handleAsyncRequest(async (req, res) => {
   const { studentId } = req.params;
   const result = await studentServices.getStudentByIdFromDB(studentId);
 
   sendResponse(res, {
     success: true,
     message: 'Student retrieve request is success',
+    data: result,
+    statusCode: httpStatus.OK,
+  });
+});
+
+const updateSingleStudent = handleAsyncRequest(async (req, res) => {
+  const { studentId } = req.params;
+  const { student } = req.body;
+
+  const result = await studentServices.updateSingleStudentIntoDB(
+    studentId,
+    student,
+  );
+
+  sendResponse(res, {
+    success: true,
+    message: 'Student is updated successfully',
     data: result,
     statusCode: httpStatus.OK,
   });
@@ -41,7 +58,8 @@ const deleteStudent = handleAsyncRequest(async (req, res) => {
 
 export const studentControllers = {
   getAllStudents,
-  getStudentById,
+  getSingleStudent,
+  updateSingleStudent,
   deleteStudent,
 };
 
