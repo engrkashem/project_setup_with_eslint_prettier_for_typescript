@@ -5,6 +5,8 @@ import {
   AcademicSemesterName,
   Months,
 } from './academicSemester.constant';
+import AppError from '../../errors/AppError';
+import httpStatus from 'http-status';
 
 const AcademicSemesterSchema = new Schema<TAcademicSemester>(
   {
@@ -27,7 +29,10 @@ AcademicSemesterSchema.pre('save', async function (next) {
   });
 
   if (isSemesterExists) {
-    throw new Error(`${this.name} Semester of ${this.year} already taken.`);
+    throw new AppError(
+      httpStatus.NOT_ACCEPTABLE,
+      `${this.name} Semester of ${this.year} already taken.`,
+    );
   }
 
   next();
