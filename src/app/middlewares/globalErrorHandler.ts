@@ -8,11 +8,12 @@ import zodErrorhandler from '../errors/zodErrorHandler';
 import validationErrorHandler from '../errors/ValidationErrorHandler';
 import castErrorHandler from '../errors/castErrorHandler';
 import duplicateKeyErrorHandler from '../errors/duplicateKeyErrorHandler';
+import AppError from '../errors/AppError';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
-  let statusCode = err.statusCode || 500;
-  let message = err.message || 'Something Went Wrong';
+  let statusCode = 500;
+  let message = 'Something Went Wrong';
 
   let errorSources: TErrorSources = [
     {
@@ -41,6 +42,23 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     statusCode = formattedError?.statusCode;
     message = formattedError?.message;
     errorSources = formattedError?.errorSources;
+  } else if (err instanceof AppError) {
+    statusCode = err?.statusCode;
+    message = err?.name;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
+  } else if (err instanceof Error) {
+    message = err?.name;
+    errorSources = [
+      {
+        path: '',
+        message: err?.message,
+      },
+    ];
   }
 
   // final return

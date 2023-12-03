@@ -19,7 +19,7 @@ app.use(cors());
 // routes: api/v1/students/create-student
 app.use('/api/v1', router);
 
-const test = (req: Request, res: Response) => {
+const test = async (req: Request, res: Response) => {
   res.send('PH University Server is running..');
 };
 
