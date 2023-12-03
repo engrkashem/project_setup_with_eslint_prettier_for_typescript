@@ -7,6 +7,7 @@ import config from '../config';
 import zodErrorhandler from '../errors/zodErrorHandler';
 import validationErrorHandler from '../errors/ValidationErrorHandler';
 import castErrorHandler from '../errors/castErrorHandler';
+import duplicateKeyErrorHandler from '../errors/duplicateKeyErrorHandler';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
@@ -32,6 +33,11 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     errorSources = formattedError?.errorSources;
   } else if (err?.name === 'CastError') {
     const formattedError = castErrorHandler(err);
+    statusCode = formattedError?.statusCode;
+    message = formattedError?.message;
+    errorSources = formattedError?.errorSources;
+  } else if (err?.code === 11000) {
+    const formattedError = duplicateKeyErrorHandler(err);
     statusCode = formattedError?.statusCode;
     message = formattedError?.message;
     errorSources = formattedError?.errorSources;
