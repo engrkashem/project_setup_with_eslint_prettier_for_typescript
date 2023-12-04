@@ -4,24 +4,68 @@ import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { User } from '../user/user.model';
 import { TStudent } from './student.interface';
+import QueryBuilder from '../../queryBuilder/QueryBuilder';
+import { studentSearchableFields } from './student.constant';
+
+/*
+{email:{$regex:query.searchTerm, $options:i}} to search in email
+{'name.firstName':{$regex:query.searchTerm, $options:i}}
+{presentAddress.firstName:{$regex:query.searchTerm, $options:i}}
+*/
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  // {email:{$regex:query.searchTerm, $options:i}} to search in email
-  // {'name.firstName':{$regex:query.searchTerm, $options:i}}
-  // {presentAddress.firstName:{$regex:query.searchTerm, $options:i}}
+  const studentQuery = new QueryBuilder<TStudent>(
+    Student.find()
+      .populate('admittedSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fieldsLimit();
 
-  const studentSearchableFields = ['email', 'name.firstName', 'presentAddress'];
-  let searchTerm = '';
+  const result = await studentQuery.modelQuery;
+
+  return result;
+};
+
+/*
+const queryObj = { ...query };
+
+let searchTerm = '';
 
   if (query?.searchTerm) {
     searchTerm = query?.searchTerm as string;
   }
 
-  const result = await Student.find({
+  // searching
+  const searchQuery = Student.find({
     $or: studentSearchableFields.map((field) => ({
       [field]: { $regex: searchTerm, $options: 'i' },
     })),
-  })
+  });
+
+  // filtering
+  const excludeFieldsFromQuery = [
+    'searchTerm',
+    'sort',
+    'limit',
+    'page',
+    'fields',
+  ];
+
+  excludeFieldsFromQuery.forEach((element) => delete queryObj[element]);
+  // console.log({ query }, { queryObj });
+
+  const filterQuery = searchQuery
+    .find(queryObj)
     .populate('admittedSemester')
     .populate({
       path: 'academicDepartment',
@@ -29,12 +73,54 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
         path: 'academicFaculty',
       },
     });
-  return result;
-};
 
-// const result = await Student.findOne({ id: studentId });
-// const result = await Student.aggregate([{ $match: { id: studentId } }])
-// const result = await Student.findById({ _id: Object(studentId) });
+    // sorting
+  let sort = '-createdAt';
+
+  if (query.sort) {
+    sort = query.sort as string;
+  }
+
+  const sortQuery = filterQuery.sort(sort);
+
+
+  // pagination:
+  let limit = 10;
+  if (query.limit) {
+    limit = Number(query.limit);
+  }
+  let page = 1;
+  let skip = 0;
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+
+  //skipping
+  const paginateQuery = sortQuery.skip(skip);
+
+  // limiting
+  const limitQuery = paginateQuery.limit(limit);
+
+
+  // field limit query
+  let fields = '- __v';
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+    // fields.replace(',', ' ');
+    console.log(fields);
+  }
+
+  const fieldLimitQuery = await limitQuery.select(fields);
+
+*/
+
+/*
+const result = await Student.findOne({ id: studentId });
+const result = await Student.aggregate([{ $match: { id: studentId } }])
+const result = await Student.findById({ _id: Object(studentId) });
+*/
+
 /**
  * findOne({id:id}): may be mongodb index id or our assigned id
  * findById({_id: Object(studentId)}): accept only mongodb default indexed id
