@@ -4,7 +4,7 @@ import httpStatus from 'http-status';
 import handleAsyncRequest from '../../utils/handleAsyncRequest';
 
 const getAllStudents = handleAsyncRequest(async (req, res) => {
-  const result = await studentServices.getAllStudentsFromDB();
+  const result = await studentServices.getAllStudentsFromDB(req.query);
 
   // sending response
   sendResponse(res, {
