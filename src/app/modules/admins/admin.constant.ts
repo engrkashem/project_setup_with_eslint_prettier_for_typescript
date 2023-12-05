@@ -1,7 +1,7 @@
 import { TBloodGroup } from '../../interface/bloodGroup';
 import { TGender } from '../../interface/gender';
 
-export const facultySearchableFields = [
+export const AdminSearchableFields = [
   'email',
   'id',
   'contactNo',

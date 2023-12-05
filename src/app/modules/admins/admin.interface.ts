@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { TGender } from '../../interface/gender';
 import { TBloodGroup } from '../../interface/bloodGroup';
 
-export type TFaculty = {
+export type TAdmin = {
   id: string;
   user: Types.ObjectId;
   designation: string;
@@ -18,11 +18,10 @@ export type TFaculty = {
   presentAddress: string;
   permanentAddress: string;
   profileImg?: string;
-  academicDepartment: Types.ObjectId;
   isDeleted: boolean;
 };
 
-export interface FacultyModel extends Model<TFaculty> {
+export interface AdminModel extends Model<TAdmin> {
   // eslint-disable-next-line no-unused-vars
-  isFacultyExists(id: string): Promise<TFaculty | null>;
+  isAdminExists(id: string): Promise<TAdmin | null>;
 }
