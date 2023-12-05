@@ -48,6 +48,6 @@ userSchema.post('save', function (userData, next) {
  * for query middleware: this -> current query
  * for aggregation middleware: this -> current aggregation pipeline
  */
-/********************* Document Middleware end *******************************/
+/******* Document Middleware end *********/
 
 export const User = model<TUser>('User', userSchema);

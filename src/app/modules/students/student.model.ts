@@ -4,10 +4,10 @@ import {
   TGuardian,
   TLocalGuardian,
   TStudent,
-  // StudentMethods,
-  TUserName,
   StudentModel,
 } from './student.interface';
+import userNameSchema from '../../schema/userName';
+
 // import validator from 'validator';
 
 // regex for email
@@ -16,33 +16,6 @@ import {
 //   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
 //sub schemas
-const userNameSchema = new Schema<TUserName>({
-  firstName: {
-    type: String,
-    required: [true, 'First name is required'],
-    trim: true,
-    maxlength: [20, 'First name length must be less than or equal to 20'],
-    // validate: {
-    //   validator: function (value: string) {
-    //     const idealFirstNameFormat =
-    //       value.charAt(0).toUpperCase() + value.slice(1);
-    //     return idealFirstNameFormat === value;
-    //   },
-    //   message: 'Fist name must be capitalize',
-    // },
-  },
-  middleName: { type: String, trim: true },
-  lastName: {
-    type: String,
-    required: [true, 'Last name is required'],
-    trim: true,
-    minlength: [3, 'Last name must contains at least 3 characters'],
-    // validate: {
-    //   validator: (value: string) => validator.isAlpha(value),
-    //   message: '{VALUE} is invalid. Remove numeric character.',
-    // },
-  },
-});
 
 const guardianSchema = new Schema<TGuardian>({
   fatherName: {

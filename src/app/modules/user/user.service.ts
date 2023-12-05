@@ -64,6 +64,10 @@ const addStudentToDB = async (password: string, payload: TStudent) => {
   }
 };
 
+// const addFacultyIntoDB=async()=>{
+
+// }
+
 export const UserServices = {
   addStudentToDB,
 };
