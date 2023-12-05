@@ -15,4 +15,6 @@ router.patch(
   facultyControllers.updateSingleFaculty,
 );
 
+router.delete('/:facultyId', facultyControllers.deleteFaculty);
+
 export const FacultyRoutes = router;

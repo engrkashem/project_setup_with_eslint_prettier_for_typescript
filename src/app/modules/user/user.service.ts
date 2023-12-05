@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import config from '../../config';
 import { TAcademicSemester } from '../academicSemester/academicSemester.interface';
@@ -6,9 +7,11 @@ import { TStudent } from '../students/student.interface';
 import { Student } from '../students/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
-import { generateStudentId } from './user.utils';
+import { generateFacultyId, generateStudentId } from './user.utils';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
+import { TFaculty } from '../faculties/faculty.interface';
+import { Faculty } from '../faculties/faculty.model';
 
 const addStudentToDB = async (password: string, payload: TStudent) => {
   // create a user object
@@ -64,12 +67,52 @@ const addStudentToDB = async (password: string, payload: TStudent) => {
   }
 };
 
-// const addFacultyIntoDB=async()=>{
+const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
+  const userData: Partial<TUser> = {};
 
-// }
+  //set password to faculty user data
+  userData.password = password || config.defaultPass;
+
+  userData.role = 'faculty';
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    // generate faculty id manually
+    userData.id = await generateFacultyId();
+
+    // generate user Transaction-1
+    const newUser = await User.create([userData], { session });
+
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
+    }
+
+    //create faculty
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id;
+
+    const newFaculty = await Faculty.create([payload], { session });
+
+    if (!newFaculty.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Faculty');
+    }
+
+    // if success save user and faculty simultaneously; else abort both
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, err?.message);
+  }
+};
 
 export const UserServices = {
   addStudentToDB,
+  addFacultyIntoDB,
 };
 
 /*
