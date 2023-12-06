@@ -7,11 +7,16 @@ import { TStudent } from '../students/student.interface';
 import { Student } from '../students/student.model';
 import { TUser } from './user.interface';
 import { User } from './user.model';
-import { generateFacultyId, generateStudentId } from './user.utils';
+import {
+  generateAdminId,
+  generateFacultyId,
+  generateStudentId,
+} from './user.utils';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import { TFaculty } from '../faculties/faculty.interface';
 import { Faculty } from '../faculties/faculty.model';
+import { Admin } from '../admins/admin.model';
 
 const addStudentToDB = async (password: string, payload: TStudent) => {
   // create a user object
@@ -110,9 +115,53 @@ const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
+const addAdminIntoDB = async (password: string, payload: TFaculty) => {
+  const userData: Partial<TUser> = {};
+
+  //set password to faculty user data
+  userData.password = password || config.defaultPass;
+
+  userData.role = 'admin';
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    // generate faculty id manually
+    userData.id = await generateAdminId();
+
+    // generate user Transaction-1
+    const newUser = await User.create([userData], { session });
+
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
+    }
+
+    //create faculty
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id;
+
+    const newAdmin = await Admin.create([payload], { session });
+
+    if (!newAdmin.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create Admin');
+    }
+
+    // if success save user and faculty simultaneously; else abort both
+    await session.commitTransaction();
+    await session.endSession();
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, err?.message);
+  }
+};
+
 export const UserServices = {
   addStudentToDB,
   addFacultyIntoDB,
+  addAdminIntoDB,
 };
 
 /*

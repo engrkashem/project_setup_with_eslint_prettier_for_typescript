@@ -9,7 +9,7 @@ const createUserNameValidationSchema = z.object({
 const createAdminValidationSchema = z.object({
   body: z.object({
     password: z.string().max(20),
-    faculty: z.object({
+    admin: z.object({
       name: createUserNameValidationSchema,
       designation: z.string(),
       gender: z.enum(['male', 'female', 'other']),
@@ -36,7 +36,7 @@ const updateUserNameValidationSchema = z.object({
 
 const updateAdminValidationSchema = z.object({
   body: z.object({
-    faculty: z.object({
+    admin: z.object({
       name: updateUserNameValidationSchema.optional(),
       designation: z.string().optional(),
       gender: z.enum(['male', 'female', 'other']).optional(),

@@ -29,9 +29,9 @@ const getSingleAdmin = handleAsyncRequest(async (req, res) => {
 
 const updateSingleAdmin = handleAsyncRequest(async (req, res) => {
   const { adminId } = req.params;
-  const { faculty } = req.body;
+  const { admin } = req.body;
 
-  const result = await adminServices.updateSingleAdminFromDB(adminId, faculty);
+  const result = await adminServices.updateSingleAdminFromDB(adminId, admin);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -49,7 +49,7 @@ const deleteAdmin = handleAsyncRequest(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Requested Admin updated successfully',
+    message: 'Requested Admin deleted successfully',
     data: result,
   });
 });

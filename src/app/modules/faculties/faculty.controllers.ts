@@ -52,7 +52,7 @@ const deleteFaculty = handleAsyncRequest(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Requested Faculty updated successfully',
+    message: 'Requested Faculty deleted successfully',
     data: result,
   });
 });
