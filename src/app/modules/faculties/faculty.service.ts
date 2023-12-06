@@ -29,11 +29,11 @@ const getAllFacultiesFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
-const getSingleFacultyFromDB = async (facultyId: string) => {
-  if (!(await Faculty.isFacultyExists(facultyId))) {
+const getSingleFacultyFromDB = async (id: string) => {
+  if (!(await Faculty.isFacultyExists(id))) {
     throw new AppError(httpStatus.NOT_FOUND, 'faculty is not found.');
   }
-  const result = await Faculty.findOne({ id: facultyId }).populate({
+  const result = await Faculty.findById(id).populate({
     path: 'academicDepartment',
     populate: {
       path: 'academicFaculty',
@@ -43,12 +43,12 @@ const getSingleFacultyFromDB = async (facultyId: string) => {
 };
 
 const updateSingleFacultyFromDB = async (
-  facultyId: string,
+  id: string,
   payload: Partial<TFaculty>,
 ) => {
   const { name, ...remaining } = payload;
 
-  if (!(await Faculty.isFacultyExists(facultyId))) {
+  if (!(await Faculty.isFacultyExists(id))) {
     throw new AppError(httpStatus.BAD_REQUEST, 'faculty is not found.');
   }
 
@@ -62,20 +62,16 @@ const updateSingleFacultyFromDB = async (
     }
   }
 
-  const result = await Faculty.findOneAndUpdate(
-    { id: facultyId },
-    modifiedFaculty,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await Faculty.findByIdAndUpdate(id, modifiedFaculty, {
+    new: true,
+    runValidators: true,
+  });
 
   return result;
 };
 
-const deleteFacultyFromDB = async (facultyId: string) => {
-  if (!(await Faculty.isFacultyExists(facultyId))) {
+const deleteFacultyFromDB = async (id: string) => {
+  if (!(await Faculty.isFacultyExists(id))) {
     throw new AppError(httpStatus.NOT_FOUND, 'Faculty is not found');
   }
 
@@ -84,8 +80,8 @@ const deleteFacultyFromDB = async (facultyId: string) => {
   try {
     await session.startTransaction();
 
-    const deletedFaculty = await Faculty.findOneAndUpdate(
-      { id: facultyId },
+    const deletedFaculty = await Faculty.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -94,8 +90,9 @@ const deleteFacultyFromDB = async (facultyId: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'failed to delete faculty');
     }
 
-    const deletedUser = await User.findOneAndUpdate(
-      { id: facultyId },
+    const userId = deletedFaculty.user;
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );

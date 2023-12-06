@@ -7,14 +7,14 @@ const router = Router();
 
 router.get('/', adminControllers.getAllAdmins);
 
-router.get('/:adminId', adminControllers.getSingleAdmin);
+router.get('/:id', adminControllers.getSingleAdmin);
 
 router.patch(
-  '/:adminId',
+  '/:id',
   validateRequest(adminValidations.updateAdminValidationSchema),
   adminControllers.updateSingleAdmin,
 );
 
-router.delete('/:adminId', adminControllers.deleteAdmin);
+router.delete('/:id', adminControllers.deleteAdmin);
 
 export const AdminRoutes = router;

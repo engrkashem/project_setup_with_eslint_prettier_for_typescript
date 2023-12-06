@@ -108,7 +108,7 @@ adminSchema.pre('aggregate', async function (next) {
 
 /****** Static Method ******/
 adminSchema.static('isAdminExists', async function isAdminExists(id: string) {
-  return await Admin.findOne({ id });
+  return await Admin.findById(id);
 });
 
 /****** Admin Model ******/

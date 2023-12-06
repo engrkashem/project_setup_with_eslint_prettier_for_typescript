@@ -114,7 +114,7 @@ facultySchema.pre('aggregate', async function (next) {
 facultySchema.static(
   'isFacultyExists',
   async function isFacultyExists(id: string) {
-    return await Faculty.findOne({ id });
+    return await Faculty.findById(id);
   },
 );
 

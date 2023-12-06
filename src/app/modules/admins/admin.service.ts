@@ -21,23 +21,23 @@ const getAllAdminsFromDB = async (query: Record<string, unknown>) => {
   return result;
 };
 
-const getSingleAdminFromDB = async (adminId: string) => {
-  if (!(await Admin.isAdminExists(adminId))) {
-    throw new AppError(httpStatus.NOT_FOUND, 'faculty is not found.');
+const getSingleAdminFromDB = async (id: string) => {
+  if (!(await Admin.isAdminExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Admin is not found.');
   }
-  const result = await Admin.findOne({ id: adminId });
+  const result = await Admin.findById(id);
 
   return result;
 };
 
 const updateSingleAdminFromDB = async (
-  adminId: string,
+  id: string,
   payload: Partial<TAdmin>,
 ) => {
   const { name, ...remaining } = payload;
 
-  if (!(await Admin.isAdminExists(adminId))) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'faculty is not found.');
+  if (!(await Admin.isAdminExists(id))) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Admin is not found.');
   }
 
   const modifiedAdmin: Record<string, unknown> = {
@@ -50,7 +50,7 @@ const updateSingleAdminFromDB = async (
     }
   }
 
-  const result = await Admin.findOneAndUpdate({ id: adminId }, modifiedAdmin, {
+  const result = await Admin.findByIdAndUpdate(id, modifiedAdmin, {
     new: true,
     runValidators: true,
   });
@@ -58,9 +58,9 @@ const updateSingleAdminFromDB = async (
   return result;
 };
 
-const deleteAdminFromDB = async (adminId: string) => {
-  if (!(await Admin.isAdminExists(adminId))) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Faculty is not found');
+const deleteAdminFromDB = async (id: string) => {
+  if (!(await Admin.isAdminExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Admin is not found');
   }
 
   const session = await mongoose.startSession();
@@ -68,18 +68,20 @@ const deleteAdminFromDB = async (adminId: string) => {
   try {
     await session.startTransaction();
 
-    const deletedAdmin = await Admin.findOneAndUpdate(
-      { id: adminId },
+    const deletedAdmin = await Admin.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
 
     if (!deletedAdmin) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'failed to delete faculty');
+      throw new AppError(httpStatus.BAD_REQUEST, 'failed to delete Admin');
     }
 
-    const deletedUser = await User.findOneAndUpdate(
-      { id: adminId },
+    const userId = deletedAdmin.user;
+
+    const deletedUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
