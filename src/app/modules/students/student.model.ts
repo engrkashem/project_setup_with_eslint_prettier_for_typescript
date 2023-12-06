@@ -212,7 +212,7 @@ studentSchema.static('isStudentExists', async function isStudentExists(id) {
 */
 //alternate way
 studentSchema.statics.isStudentExists = async function (id: string) {
-  const existingStudent = await Student.findOne({ id: id });
+  const existingStudent = await Student.findById(id);
 
   return existingStudent;
 };

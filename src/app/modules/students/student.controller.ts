@@ -16,8 +16,8 @@ const getAllStudents = handleAsyncRequest(async (req, res) => {
 });
 
 const getSingleStudent = handleAsyncRequest(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await studentServices.getStudentByIdFromDB(studentId);
+  const { id } = req.params;
+  const result = await studentServices.getStudentByIdFromDB(id);
 
   sendResponse(res, {
     success: true,
@@ -28,13 +28,10 @@ const getSingleStudent = handleAsyncRequest(async (req, res) => {
 });
 
 const updateSingleStudent = handleAsyncRequest(async (req, res) => {
-  const { studentId } = req.params;
+  const { id } = req.params;
   const { student } = req.body;
 
-  const result = await studentServices.updateSingleStudentIntoDB(
-    studentId,
-    student,
-  );
+  const result = await studentServices.updateSingleStudentIntoDB(id, student);
 
   sendResponse(res, {
     success: true,
@@ -45,8 +42,8 @@ const updateSingleStudent = handleAsyncRequest(async (req, res) => {
 });
 
 const deleteStudent = handleAsyncRequest(async (req, res) => {
-  const { studentId } = req.params;
-  const result = await studentServices.deleteStudentFromDB(studentId);
+  const { id } = req.params;
+  const result = await studentServices.deleteStudentFromDB(id);
 
   sendResponse(res, {
     success: true,

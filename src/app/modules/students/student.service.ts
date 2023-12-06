@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import mongoose from 'mongoose';
 import { Student } from './student.model';
 import AppError from '../../errors/AppError';
@@ -125,8 +126,12 @@ const result = await Student.findById({ _id: Object(studentId) });
  * findOne({id:id}): may be mongodb index id or our assigned id
  * findById({_id: Object(studentId)}): accept only mongodb default indexed id
  */
-const getStudentByIdFromDB = async (studentId: string) => {
-  const result = await Student.findOne({ id: studentId })
+const getStudentByIdFromDB = async (id: string) => {
+  if (!(await Student.isStudentExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Student is not found');
+  }
+
+  const result = await Student.findById(id)
     .populate('admittedSemester')
     .populate({
       path: 'academicDepartment',
@@ -139,9 +144,13 @@ const getStudentByIdFromDB = async (studentId: string) => {
 };
 
 const updateSingleStudentIntoDB = async (
-  studentId: string,
+  id: string,
   payload: Partial<TStudent>,
 ) => {
+  if (!(await Student.isStudentExists(id))) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Student is not found');
+  }
+
   const { name, guardian, localGuardian, ...remainingStudentData } = payload;
 
   const modifiedStudentData: Record<string, unknown> = {
@@ -166,30 +175,26 @@ const updateSingleStudentIntoDB = async (
 
   // console.log(modifiedStudentData);
 
-  const result = await Student.findOneAndUpdate(
-    { id: studentId },
-    modifiedStudentData,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await Student.findByIdAndUpdate(id, modifiedStudentData, {
+    new: true,
+    runValidators: true,
+  });
 
   return result;
 };
 
-const deleteStudentFromDB = async (studentId: string) => {
+const deleteStudentFromDB = async (id: string) => {
   const session = await mongoose.startSession();
 
   try {
     await session.startTransaction();
 
-    if (!(await Student.isStudentExists(studentId))) {
+    if (!(await Student.isStudentExists(id))) {
       throw new AppError(httpStatus.NOT_FOUND, 'Student is not found');
     }
 
-    const deletedStudent = await Student.findOneAndUpdate(
-      { id: studentId },
+    const deletedStudent = await Student.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
@@ -198,8 +203,10 @@ const deleteStudentFromDB = async (studentId: string) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete  student');
     }
 
+    const userId = deletedStudent.user;
+
     const deletedUser = await User.findOneAndUpdate(
-      { id: studentId },
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
@@ -212,10 +219,10 @@ const deleteStudentFromDB = async (studentId: string) => {
     await session.endSession();
 
     return deletedStudent;
-  } catch (err) {
+  } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to delete student');
+    throw new AppError(httpStatus.BAD_REQUEST, err?.message);
   }
 };
 
