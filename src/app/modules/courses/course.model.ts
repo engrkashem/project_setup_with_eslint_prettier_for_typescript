@@ -1,5 +1,9 @@
 import { Schema, model } from 'mongoose';
-import { TCourse, TPreRequisiteCourses } from './course.interface';
+import {
+  TCourse,
+  TAssignFacultiesToCourse,
+  TPreRequisiteCourses,
+} from './course.interface';
 
 const preRequisiteCoursesSchema = new Schema<TPreRequisiteCourses>({
   course: { type: Schema.Types.ObjectId, ref: 'Course' },
@@ -29,10 +33,22 @@ const courseSchema = new Schema<TCourse>(
   },
 );
 
+const assignFacultiesToCourseSchema = new Schema<TAssignFacultiesToCourse>({
+  course: { type: Schema.Types.ObjectId, ref: 'Course', unique: true },
+  faculties: [{ type: Schema.Types.ObjectId, ref: 'AcademicFaculty' }],
+});
+
 /******* Course Model Static method *******/
 courseSchema.statics.isCourseExists = async (id: string) => {
   return await Course.findById(id);
 };
 
-/******* Course Model *******/
+/*******  Models *******/
+// course model
 export const Course = model<TCourse>('Course', courseSchema);
+
+// assign faculties to a course
+export const CourseFaculties = model<TAssignFacultiesToCourse>(
+  'CourseFaculties',
+  assignFacultiesToCourseSchema,
+);

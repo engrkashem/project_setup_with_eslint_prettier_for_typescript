@@ -18,3 +18,8 @@ export interface CourseModel extends Model<TCourse> {
   // eslint-disable-next-line no-unused-vars
   isCourseExists(id: string): Promise<TCourse | null>;
 }
+
+export type TAssignFacultiesToCourse = {
+  course: Types.ObjectId;
+  faculties: [Types.ObjectId];
+};
