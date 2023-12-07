@@ -42,9 +42,9 @@ const getSingleCourse = handleAsyncRequest(async (req, res) => {
 const updateSingleCourse = handleAsyncRequest(async (req, res) => {
   const { id } = req.params;
 
-  const { course } = req.body;
+  // const { course } = req.body;
 
-  const result = await CourseServices.updateSingleCourseIntoDB(id, course);
+  const result = await CourseServices.updateSingleCourseIntoDB(id, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

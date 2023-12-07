@@ -21,12 +21,22 @@ const createCourseValidationSchema = z.object({
   }),
 });
 
-// const updatePreRequisiteCoursesValidationSchema = z.object({
-//   course: z.string().optional(),
-// });
+const updatePreRequisiteCoursesValidationSchema = z.object({
+  course: z.string().optional(),
+});
 
 // Main schema for create
-const updateCourseValidationSchema = createCourseValidationSchema.partial();
+const updateCourseValidationSchema = z.object({
+  body: z.object({
+    title: z.string().optional(),
+    prefix: z.string().optional(),
+    code: z.number().optional(),
+    credits: z.number().optional(),
+    preRequisiteCourses: z
+      .array(updatePreRequisiteCoursesValidationSchema)
+      .optional(),
+  }),
+});
 
 // sub schema for update
 
