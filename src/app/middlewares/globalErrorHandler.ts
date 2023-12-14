@@ -9,10 +9,11 @@ import validationErrorHandler from '../errors/ValidationErrorHandler';
 import castErrorHandler from '../errors/castErrorHandler';
 import duplicateKeyErrorHandler from '../errors/duplicateKeyErrorHandler';
 import AppError from '../errors/AppError';
+import httpStatus from 'http-status';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
-  let statusCode = 500;
+  let statusCode: number = httpStatus.BAD_REQUEST;
   let message = 'Something Went Wrong';
 
   let errorSources: TErrorSources = [
