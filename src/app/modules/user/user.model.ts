@@ -1,9 +1,9 @@
 import { Schema, model } from 'mongoose';
-import { TUser } from './user.interface';
+import { TUser, UserModel } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
-const userSchema = new Schema<TUser>(
+const userSchema = new Schema<TUser, UserModel>(
   {
     id: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -43,11 +43,30 @@ userSchema.post('save', function (userData, next) {
   next();
 });
 
+/******* Custom static methods *********/
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return await User.findOne({ id: id });
+};
+
+userSchema.statics.isPasswordMatched = async function (
+  password: string,
+  hashedPassword: string,
+) {
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+userSchema.statics.isUserDeleted = function (user: TUser) {
+  return user?.isDeleted;
+};
+
+userSchema.statics.isUserBlocked = function (user: TUser) {
+  return user?.status === 'blocked';
+};
 /**
  * for document middleware: this -> current incoming/requested document
  * for query middleware: this -> current query
  * for aggregation middleware: this -> current aggregation pipeline
  */
-/******* Document Middleware end *********/
+/******* Model *********/
 
-export const User = model<TUser>('User', userSchema);
+export const User = model<TUser, UserModel>('User', userSchema);

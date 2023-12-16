@@ -108,6 +108,7 @@ const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
     // if success save user and faculty simultaneously; else abort both
     await session.commitTransaction();
     await session.endSession();
+    return newFaculty;
   } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
@@ -151,6 +152,8 @@ const addAdminIntoDB = async (password: string, payload: TFaculty) => {
     // if success save user and faculty simultaneously; else abort both
     await session.commitTransaction();
     await session.endSession();
+
+    return newAdmin;
   } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
