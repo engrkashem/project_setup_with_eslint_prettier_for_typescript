@@ -6,8 +6,9 @@ import config from '../../config';
 const userSchema = new Schema<TUser, UserModel>(
   {
     id: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     needsPasswordChange: { type: Boolean, default: true },
+    passwordChangedAt: { type: Date },
     role: {
       type: String,
       enum: ['admin', 'faculty', 'student'],
@@ -45,7 +46,7 @@ userSchema.post('save', function (userData, next) {
 
 /******* Custom static methods *********/
 userSchema.statics.isUserExistsByCustomId = async function (id: string) {
-  return await User.findOne({ id: id });
+  return await User.findOne({ id: id }).select('+password');
 };
 
 userSchema.statics.isPasswordMatched = async function (
@@ -53,6 +54,16 @@ userSchema.statics.isPasswordMatched = async function (
   hashedPassword: string,
 ) {
   return await bcrypt.compare(password, hashedPassword);
+};
+
+userSchema.statics.isJWTIssuedBeforePasswordChange = function (
+  passwordChangeTimestamp: Date,
+  jwtIssueTimestamp: number,
+) {
+  const passwordChangedTimeInSecond =
+    new Date(passwordChangeTimestamp).getTime() / 1000;
+
+  return passwordChangedTimeInSecond > jwtIssueTimestamp;
 };
 
 userSchema.statics.isUserDeleted = function (user: TUser) {

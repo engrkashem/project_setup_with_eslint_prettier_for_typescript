@@ -2,10 +2,16 @@ import { Router } from 'express';
 import { facultyControllers } from './faculty.controllers';
 import validateRequest from '../../middlewares/validateRequest';
 import { facultyValidations } from './faculty.validation';
+import auth from '../../middlewares/auth';
+import { USER_ROLE } from '../user/user.constants';
 
 const router = Router();
 
-router.get('/', facultyControllers.getAllFaculties);
+router.get(
+  '/',
+  auth(USER_ROLE.admin, USER_ROLE.faculty),
+  facultyControllers.getAllFaculties,
+);
 
 router.get('/:id', facultyControllers.getSingleFaculty);
 

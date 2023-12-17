@@ -9,4 +9,8 @@ export default {
   db_url: process.env.DB_URL,
   saltRounds: process.env.BCRYPT_SALT_ROUNDS,
   defaultPass: process.env.DEFAULT_PASS,
+  jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
+  jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
+  jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
 };
