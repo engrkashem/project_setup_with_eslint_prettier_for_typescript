@@ -7,6 +7,7 @@ import { TChangePassword } from '../user/user.interface';
 import bcrypt from 'bcrypt';
 import { createToken } from './auth.utils';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { sendEmail } from '../../utils/sendEmail';
 
 const loginUserIntoDB = async (payload: TLoginUser) => {
   const { id, password } = payload;
@@ -173,10 +174,44 @@ const createAccessTokenFromRefreshToken = async (token: string) => {
   };
 };
 
+const forgetPasswordDB = async (userId: string) => {
+  const user = await User.isUserExistsByCustomId(userId);
+
+  // check if user exists
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found');
+  }
+
+  // check if user is deleted
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is deleted');
+  }
+
+  // check if user is blocked
+  if (user?.status === 'blocked') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked');
+  }
+
+  // generate access Token
+  const jwtPayload = {
+    userId: user?.id,
+    role: user?.role,
+  };
+  const accessSecret = config.jwtAccessSecret as string;
+  const resetToken = createToken(jwtPayload, accessSecret, '10m');
+
+  const resetUILink = `${config.rootUiURL}?id=${user?.id}&token=${resetToken}`;
+
+  sendEmail(user?.email, resetUILink);
+
+  return null;
+};
+
 export const AuthServices = {
   loginUserIntoDB,
   changePasswordIntoDB,
   createAccessTokenFromRefreshToken,
+  forgetPasswordDB,
 };
 
 /**
