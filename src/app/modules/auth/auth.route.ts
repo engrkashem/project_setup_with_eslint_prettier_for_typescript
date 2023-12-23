@@ -39,3 +39,8 @@ router.post(
 );
 
 export const AuthRoutes = router;
+
+/**
+ 
+http://localhost:3000?id=A-0001&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJBLTAwMDEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MDMzMTA3NzksImV4cCI6MTcwMzMxMTM3OX0.1JgaJOG8SoyRcPpDQPEnm2oFnBij4Wy0yN8O3SaMnaI
+ */

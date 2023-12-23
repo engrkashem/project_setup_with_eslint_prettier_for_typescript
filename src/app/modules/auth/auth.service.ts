@@ -207,8 +207,11 @@ const forgetPasswordDB = async (userId: string) => {
   return null;
 };
 
-const resetPasswordDB = async (userId: string) => {
-  const user = await User.isUserExistsByCustomId(userId);
+const resetPasswordDB = async (
+  payload: { id: string; newPassword: string },
+  token: string,
+) => {
+  const user = await User.isUserExistsByCustomId(payload?.id);
 
   // check if user exists
   if (!user) {
@@ -225,17 +228,34 @@ const resetPasswordDB = async (userId: string) => {
     throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked');
   }
 
-  // generate access Token
-  const jwtPayload = {
-    userId: user?.id,
-    role: user?.role,
-  };
-  const accessSecret = config.jwtAccessSecret as string;
-  const resetToken = createToken(jwtPayload, accessSecret, '10m');
+  // check if the token is valid
+  const decodedUser = jwt.verify(
+    token,
+    config.jwtAccessSecret as string,
+  ) as JwtPayload;
 
-  const resetUILink = `${config.rootUiURL}?id=${user?.id}&token=${resetToken}`;
+  // check if user id and token for what student is valid
+  if (decodedUser?.userId !== payload?.id) {
+    // console.log(decodedUser?.userId, payload?.id);
+    throw new AppError(httpStatus.FORBIDDEN, 'Forbidden user request');
+  }
 
-  sendEmail(user?.email, resetUILink);
+  // first hash new password before changing password
+  const hashedNewPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.saltRounds),
+  );
+
+  // send request to change password to db
+  await User.findOneAndUpdate(
+    { id: decodedUser?.userId, role: decodedUser?.role },
+    {
+      password: hashedNewPassword,
+      needsPasswordChange: false,
+      passwordChangedAt: new Date(),
+    },
+    { new: true, runValidators: true },
+  );
 
   return null;
 };
