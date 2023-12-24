@@ -21,8 +21,13 @@ import { TAdmin } from '../admins/admin.interface';
 
 import { USER_ROLE } from './user.constants';
 import { JwtPayload } from 'jsonwebtoken';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 
-const addStudentToDB = async (password: string, payload: TStudent) => {
+const addStudentToDB = async (
+  image: any,
+  password: string,
+  payload: TStudent,
+) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -61,6 +66,15 @@ const addStudentToDB = async (password: string, payload: TStudent) => {
     payload.id = newUser[0].id; // embedded id
     payload.user = newUser[0]._id; // reference id
 
+    // send image to cloudinary
+    const imageName = `${userData?.id}${payload?.name?.lastName}`;
+    const path = image?.path;
+
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+
+    // update profile image in payload
+    payload.profileImg = secure_url;
+
     // create a student (Transaction-2)
     const newStudent = await Student.create([payload], { session });
 
@@ -79,7 +93,11 @@ const addStudentToDB = async (password: string, payload: TStudent) => {
   }
 };
 
-const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
+const addFacultyIntoDB = async (
+  image: any,
+  password: string,
+  payload: TFaculty,
+) => {
   const userData: Partial<TUser> = {};
 
   //set password to faculty user data
@@ -104,6 +122,12 @@ const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
     }
 
+    // send image to cloudinary
+    const imageName = `${userData?.id}${payload?.name?.lastName}`;
+    const path = image?.path;
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+    payload.profileImg = secure_url;
+
     //create faculty
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
@@ -125,7 +149,11 @@ const addFacultyIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
-const addAdminIntoDB = async (password: string, payload: TAdmin) => {
+const addAdminIntoDB = async (
+  image: any,
+  password: string,
+  payload: TAdmin,
+) => {
   const userData: Partial<TUser> = {};
 
   //set password to faculty user data
@@ -150,9 +178,16 @@ const addAdminIntoDB = async (password: string, payload: TAdmin) => {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
     }
 
+    // send image to cloudinary
+    const imageName = `${userData?.id}${payload?.name?.lastName}`;
+    const path = image?.path;
+
+    const { secure_url } = await sendImageToCloudinary(imageName, path);
+
     //create faculty
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImg = secure_url;
 
     const newAdmin = await Admin.create([payload], { session });
 

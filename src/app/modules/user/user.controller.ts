@@ -7,7 +7,11 @@ const createStudent = handleAsyncRequest(async (req, res) => {
   const { password, student: studentData } = req.body;
 
   // calling service function to send data to database
-  const result = await UserServices.addStudentToDB(password, studentData);
+  const result = await UserServices.addStudentToDB(
+    req.file,
+    password,
+    studentData,
+  );
 
   // sending response
   sendResponse(res, {
@@ -21,7 +25,11 @@ const createStudent = handleAsyncRequest(async (req, res) => {
 const createFaculty = handleAsyncRequest(async (req, res) => {
   const { password, faculty: facultyData } = req.body;
 
-  const result = await UserServices.addFacultyIntoDB(password, facultyData);
+  const result = await UserServices.addFacultyIntoDB(
+    req.file,
+    password,
+    facultyData,
+  );
 
   // sending response
   sendResponse(res, {
@@ -34,7 +42,11 @@ const createFaculty = handleAsyncRequest(async (req, res) => {
 const createAdmin = handleAsyncRequest(async (req, res) => {
   const { password, admin: adminData } = req.body;
 
-  const result = await UserServices.addAdminIntoDB(password, adminData);
+  const result = await UserServices.addAdminIntoDB(
+    req.file,
+    password,
+    adminData,
+  );
 
   // sending response
   sendResponse(res, {
