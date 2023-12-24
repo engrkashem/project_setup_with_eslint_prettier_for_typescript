@@ -19,6 +19,9 @@ import { Faculty } from '../faculties/faculty.model';
 import { Admin } from '../admins/admin.model';
 import { TAdmin } from '../admins/admin.interface';
 
+import { USER_ROLE } from './user.constants';
+import { JwtPayload } from 'jsonwebtoken';
+
 const addStudentToDB = async (password: string, payload: TStudent) => {
   // create a user object
   const userData: Partial<TUser> = {};
@@ -169,10 +172,38 @@ const addAdminIntoDB = async (password: string, payload: TAdmin) => {
   }
 };
 
+const getMeFromDB = async (user: JwtPayload) => {
+  const { userId, role } = user;
+
+  let result = null;
+
+  if (role === USER_ROLE.student) {
+    result = await Student.findOne({ id: userId });
+  } else if (role === USER_ROLE.faculty) {
+    result = await Faculty.findOne({ id: userId });
+  } else if (role === USER_ROLE.admin) {
+    result = await Admin.findOne({ id: userId });
+  }
+
+  return result;
+};
+
+const changeStatusIntoDB = async (id: string, payload: { status: string }) => {
+  const result = await User.findByIdAndUpdate(
+    id,
+    { status: payload?.status },
+    { new: true, runValidators: true },
+  );
+
+  return result;
+};
+
 export const UserServices = {
   addStudentToDB,
   addFacultyIntoDB,
   addAdminIntoDB,
+  getMeFromDB,
+  changeStatusIntoDB,
 };
 
 /*

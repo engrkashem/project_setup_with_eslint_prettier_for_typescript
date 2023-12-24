@@ -45,10 +45,38 @@ const createAdmin = handleAsyncRequest(async (req, res) => {
   });
 });
 
+const getMe = handleAsyncRequest(async (req, res) => {
+  const result = await UserServices.getMeFromDB(req.user);
+
+  // sending response
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'your info is retrieved successfully',
+    data: result,
+  });
+});
+
+const changeStatus = handleAsyncRequest(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await UserServices.changeStatusIntoDB(id, req.body);
+
+  // sending response
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'User status is updated successfully',
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createStudent,
   createFaculty,
   createAdmin,
+  getMe,
+  changeStatus,
 };
 
 /*

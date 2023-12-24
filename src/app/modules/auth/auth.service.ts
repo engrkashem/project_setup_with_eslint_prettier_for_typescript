@@ -5,8 +5,8 @@ import { TLoginUser } from './auth.interface';
 import config from '../../config';
 import { TChangePassword } from '../user/user.interface';
 import bcrypt from 'bcrypt';
-import { createToken } from './auth.utils';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { createToken, verifyToken } from './auth.utils';
+import { JwtPayload } from 'jsonwebtoken';
 import { sendEmail } from '../../utils/sendEmail';
 
 const loginUserIntoDB = async (payload: TLoginUser) => {
@@ -121,10 +121,7 @@ const changePasswordIntoDB = async (
 
 const createAccessTokenFromRefreshToken = async (token: string) => {
   // check if the token is valid
-  const decodedUser = jwt.verify(
-    token,
-    config.jwtRefreshSecret as string,
-  ) as JwtPayload;
+  const decodedUser = verifyToken(token, config.jwtRefreshSecret as string);
 
   const { userId, iat } = decodedUser;
 
@@ -229,10 +226,7 @@ const resetPasswordDB = async (
   }
 
   // check if the token is valid
-  const decodedUser = jwt.verify(
-    token,
-    config.jwtAccessSecret as string,
-  ) as JwtPayload;
+  const decodedUser = verifyToken(token, config.jwtAccessSecret as string);
 
   // check if user id and token for what student is valid
   if (decodedUser?.userId !== payload?.id) {
