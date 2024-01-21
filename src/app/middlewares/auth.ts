@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import handleAsyncRequest from '../utils/handleAsyncRequest';
 import AppError from '../errors/AppError';
 import httpStatus from 'http-status';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { JwtPayload } from 'jsonwebtoken';
 import config from '../config';
 import { TUserRole } from '../modules/user/user.interface';
 import { User } from '../modules/user/user.model';
+import { verifyToken } from '../modules/auth/auth.utils';
 
 const auth = (...requiredRoles: TUserRole[]) => {
   return handleAsyncRequest(
@@ -20,16 +21,9 @@ const auth = (...requiredRoles: TUserRole[]) => {
         );
       }
 
-      let decodedUser;
       // check if the token is valid
-      try {
-        decodedUser = jwt.verify(
-          token,
-          config.jwtAccessSecret as string,
-        ) as JwtPayload;
-      } catch (err) {
-        throw new AppError(httpStatus.UNAUTHORIZED, 'You are unauthorized');
-      }
+      const decodedUser = verifyToken(token, config.jwtAccessSecret as string);
+
       // console.log(decodedUser);
       const { userId, role, iat } = decodedUser;
 
