@@ -13,7 +13,7 @@ import httpStatus from 'http-status';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   // setting default values
-  let statusCode: number = httpStatus.BAD_REQUEST;
+  let statusCode: number = httpStatus.INTERNAL_SERVER_ERROR;
   let message = 'Something Went Wrong';
 
   let errorSources: TErrorSources = [
