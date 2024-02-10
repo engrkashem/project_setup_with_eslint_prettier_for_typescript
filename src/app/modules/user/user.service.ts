@@ -45,6 +45,13 @@ const addStudentToDB = async (
     payload.admittedSemester,
   );
 
+  if (!admittedSemester) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Academic Semester is not found',
+    );
+  }
+
   const session = await mongoose.startSession();
 
   try {

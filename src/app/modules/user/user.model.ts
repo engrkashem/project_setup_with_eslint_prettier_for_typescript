@@ -18,7 +18,7 @@ const userSchema = new Schema<TUser, UserModel>(
     passwordChangedAt: { type: Date },
     role: {
       type: String,
-      enum: ['super-admin', 'admin', 'faculty', 'student'],
+      enum: ['superAdmin', 'admin', 'faculty', 'student'],
     },
     status: {
       type: String,

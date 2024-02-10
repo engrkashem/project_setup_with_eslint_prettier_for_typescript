@@ -14,7 +14,9 @@ const superUser = {
 
 const seedSuperAdmin = async () => {
   // whenever database connection is established, we will check if there any super-admin exists?
-  const isSuperAdminExists = await User.findOne({ role: USER_ROLE.superAdmin });
+  const isSuperAdminExists = await User.findOne({
+    role: USER_ROLE.superAdmin,
+  });
 
   // if not exists, create super admin
   if (!isSuperAdminExists) {
