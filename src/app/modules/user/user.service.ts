@@ -22,6 +22,7 @@ import { TAdmin } from '../admins/admin.interface';
 import { USER_ROLE } from './user.constants';
 import { JwtPayload } from 'jsonwebtoken';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+import { AcademicDepartment } from '../academicDepartment/academicDepartment.model';
 
 const addStudentToDB = async (
   image: any,
@@ -52,6 +53,21 @@ const addStudentToDB = async (
     );
   }
 
+  // find academic department information
+  const admittedDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!admittedDepartment) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Academic Department is not found',
+    );
+  }
+
+  // if academic department found, then add academic faculty into payload from academic department information
+  payload.academicFaculty = admittedDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {
@@ -73,14 +89,16 @@ const addStudentToDB = async (
     payload.id = newUser[0].id; // embedded id
     payload.user = newUser[0]._id; // reference id
 
-    // send image to cloudinary
-    const imageName = `${userData?.id}${payload?.name?.lastName}`;
-    const path = image?.path;
+    if (image) {
+      // send image to cloudinary
+      const imageName = `${userData?.id}${payload?.name?.lastName}`;
+      const path = image?.path;
 
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
 
-    // update profile image in payload
-    payload.profileImg = secure_url;
+      // update profile image in payload
+      payload.profileImg = secure_url as string;
+    }
 
     // create a student (Transaction-2)
     const newStudent = await Student.create([payload], { session });
@@ -129,11 +147,13 @@ const addFacultyIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
     }
 
-    // send image to cloudinary
-    const imageName = `${userData?.id}${payload?.name?.lastName}`;
-    const path = image?.path;
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
-    payload.profileImg = secure_url;
+    if (image) {
+      // send image to cloudinary
+      const imageName = `${userData?.id}${payload?.name?.lastName}`;
+      const path = image?.path;
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
+    }
 
     //create faculty
     payload.id = newUser[0].id;
@@ -185,16 +205,18 @@ const addAdminIntoDB = async (
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User');
     }
 
-    // send image to cloudinary
-    const imageName = `${userData?.id}${payload?.name?.lastName}`;
-    const path = image?.path;
+    if (image) {
+      // send image to cloudinary
+      const imageName = `${userData?.id}${payload?.name?.lastName}`;
+      const path = image?.path;
 
-    const { secure_url } = await sendImageToCloudinary(imageName, path);
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
+    }
 
     //create faculty
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
-    payload.profileImg = secure_url;
 
     const newAdmin = await Admin.create([payload], { session });
 
