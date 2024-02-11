@@ -78,7 +78,7 @@ const deleteFacultyFromDB = async (id: string) => {
   const session = await mongoose.startSession();
 
   try {
-    await session.startTransaction();
+    session.startTransaction();
 
     const deletedFaculty = await Faculty.findByIdAndUpdate(
       id,

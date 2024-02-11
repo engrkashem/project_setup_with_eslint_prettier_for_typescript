@@ -197,8 +197,18 @@ studentSchema.pre('aggregate', function (next) {
   next();
 });
 
+//custom made instance method
+studentSchema.statics.isStudentExists = async function (id: string) {
+  const existingStudent = await Student.findById(id);
+
+  return existingStudent;
+};
+
+// model creation
+export const Student = model<TStudent, StudentModel>('Student', studentSchema); // it will create a collection named Student
+
 /*
-// custom made instance method
+// alternate way
 studentSchema.methods.isStudentExists = async function (id: string) {
   const existingStudent = await Student.findOne({ id: id });
 
@@ -214,12 +224,3 @@ studentSchema.static('isStudentExists', async function isStudentExists(id) {
   return existingStudent;
 });
 */
-//alternate way
-studentSchema.statics.isStudentExists = async function (id: string) {
-  const existingStudent = await Student.findById(id);
-
-  return existingStudent;
-};
-
-// model creation
-export const Student = model<TStudent, StudentModel>('Student', studentSchema); // it will create a collection named Student

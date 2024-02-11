@@ -42,95 +42,6 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-/*
-const queryObj = { ...query };
-
-let searchTerm = '';
-
-  if (query?.searchTerm) {
-    searchTerm = query?.searchTerm as string;
-  }
-
-  // searching
-  const searchQuery = Student.find({
-    $or: studentSearchableFields.map((field) => ({
-      [field]: { $regex: searchTerm, $options: 'i' },
-    })),
-  });
-
-  // filtering
-  const excludeFieldsFromQuery = [
-    'searchTerm',
-    'sort',
-    'limit',
-    'page',
-    'fields',
-  ];
-
-  excludeFieldsFromQuery.forEach((element) => delete queryObj[element]);
-  // console.log({ query }, { queryObj });
-
-  const filterQuery = searchQuery
-    .find(queryObj)
-    .populate('admittedSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty',
-      },
-    });
-
-    // sorting
-  let sort = '-createdAt';
-
-  if (query.sort) {
-    sort = query.sort as string;
-  }
-
-  const sortQuery = filterQuery.sort(sort);
-
-
-  // pagination:
-  let limit = 10;
-  if (query.limit) {
-    limit = Number(query.limit);
-  }
-  let page = 1;
-  let skip = 0;
-  if (query.page) {
-    page = Number(query.page);
-    skip = (page - 1) * limit;
-  }
-
-  //skipping
-  const paginateQuery = sortQuery.skip(skip);
-
-  // limiting
-  const limitQuery = paginateQuery.limit(limit);
-
-
-  // field limit query
-  let fields = '- __v';
-  if (query.fields) {
-    fields = (query.fields as string).split(',').join(' ');
-    // fields.replace(',', ' ');
-    console.log(fields);
-  }
-
-  const fieldLimitQuery = await limitQuery.select(fields);
-
-*/
-
-/*
-const result = await Student.findOne({ id: studentId });
-const result = await Student.aggregate([{ $match: { id: studentId } }])
-const result = await Student.findById({ _id: Object(studentId) });
-*/
-
-/**
- * findOne({id:id}): may be mongodb index id or our assigned id
- * findById({_id: Object(studentId)}): accept only mongodb default indexed id
- */
 const getStudentByIdFromDB = async (id: string) => {
   if (!(await Student.isStudentExists(id))) {
     throw new AppError(httpStatus.NOT_FOUND, 'Student is not found');
@@ -237,3 +148,94 @@ export const studentServices = {
   deleteStudentFromDB,
   updateSingleStudentIntoDB,
 };
+
+/************/
+/*
+const queryObj = { ...query };
+
+let searchTerm = '';
+
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+
+  // searching
+  const searchQuery = Student.find({
+    $or: studentSearchableFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  });
+
+  // filtering
+  const excludeFieldsFromQuery = [
+    'searchTerm',
+    'sort',
+    'limit',
+    'page',
+    'fields',
+  ];
+
+  excludeFieldsFromQuery.forEach((element) => delete queryObj[element]);
+  // console.log({ query }, { queryObj });
+
+  const filterQuery = searchQuery
+    .find(queryObj)
+    .populate('admittedSemester')
+    .populate({
+      path: 'academicDepartment',
+      populate: {
+        path: 'academicFaculty',
+      },
+    });
+
+    // sorting
+  let sort = '-createdAt';
+
+  if (query.sort) {
+    sort = query.sort as string;
+  }
+
+  const sortQuery = filterQuery.sort(sort);
+
+
+  // pagination:
+  let limit = 10;
+  if (query.limit) {
+    limit = Number(query.limit);
+  }
+  let page = 1;
+  let skip = 0;
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit;
+  }
+
+  //skipping
+  const paginateQuery = sortQuery.skip(skip);
+
+  // limiting
+  const limitQuery = paginateQuery.limit(limit);
+
+
+  // field limit query
+  let fields = '- __v';
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+    // fields.replace(',', ' ');
+    console.log(fields);
+  }
+
+  const fieldLimitQuery = await limitQuery.select(fields);
+
+*/
+
+/*
+const result = await Student.findOne({ id: studentId });
+const result = await Student.aggregate([{ $match: { id: studentId } }])
+const result = await Student.findById({ _id: Object(studentId) });
+*/
+
+/**
+ * findOne({id:id}): may be mongodb index id or our assigned id
+ * findById({_id: Object(studentId)}): accept only mongodb default indexed id
+ */

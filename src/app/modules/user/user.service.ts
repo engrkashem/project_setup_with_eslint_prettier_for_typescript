@@ -132,6 +132,21 @@ const addFacultyIntoDB = async (
 
   userData.email = payload.email;
 
+  // check if academic department is valid
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!academicDepartment) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      'Academic Department is not found',
+    );
+  }
+
+  // insert academic faculty info into payload
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
   const session = await mongoose.startSession();
 
   try {

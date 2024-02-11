@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Types } from 'mongoose';
 import TUserName from '../../interface/userName';
 import { Model } from 'mongoose';
@@ -19,10 +20,10 @@ export type TFaculty = {
   permanentAddress: string;
   profileImg?: string;
   academicDepartment: Types.ObjectId;
+  academicFaculty: Types.ObjectId;
   isDeleted: boolean;
 };
 
 export interface FacultyModel extends Model<TFaculty> {
-  // eslint-disable-next-line no-unused-vars
   isFacultyExists(id: string): Promise<TFaculty | null>;
 }

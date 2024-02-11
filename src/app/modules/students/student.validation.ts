@@ -3,12 +3,6 @@ import { z } from 'zod';
 // Sub-schemas for create
 const createUserNameValidationSchema = z.object({
   firstName: z.string().min(1).max(20).trim(),
-  // .refine(
-  //   (value) => value.charAt(0).toUpperCase() + value.slice(1) === value,
-  //   {
-  //     message: 'First name must be capitalized',
-  //   },
-  // ),
   middleName: z.string().trim().optional(),
   lastName: z.string().min(3).max(20).trim(),
 });
@@ -50,7 +44,6 @@ const createStudentValidationSchema = z.object({
       localGuardian: createLocalGuardianValidationSchema,
       admittedSemester: z.string(),
       academicDepartment: z.string(),
-      // profileImg: z.string().optional(),
     }),
   }),
 });
@@ -58,12 +51,6 @@ const createStudentValidationSchema = z.object({
 // sub schema for update
 const updateUserNameValidationSchema = z.object({
   firstName: z.string().min(1).max(20).trim().optional(),
-  // .refine(
-  //   (value) => value.charAt(0).toUpperCase() + value.slice(1) === value,
-  //   {
-  //     message: 'First name must be capitalized',
-  //   },
-  // ),
   middleName: z.string().trim().optional(),
   lastName: z.string().min(3).max(20).trim().optional(),
 });
@@ -104,7 +91,6 @@ const updateStudentValidationSchema = z.object({
       localGuardian: updateLocalGuardianValidationSchema.optional(),
       admittedSemester: z.string().optional(),
       academicDepartment: z.string().optional(),
-      profileImg: z.string().optional(),
     }),
   }),
 });
@@ -113,3 +99,15 @@ export const studentValidations = {
   createStudentValidationSchema,
   updateStudentValidationSchema,
 };
+
+/**
+ 
+firstName: z.string().min(1).max(20).trim()
+   .refine(
+     (value) => value.charAt(0).toUpperCase() + value.slice(1) === value,
+     {
+       message: 'First name must be capitalized',
+     },
+  ),
+
+ */
