@@ -40,7 +40,7 @@ const courseSchema = new Schema<TCourse>(
 
 const assignFacultiesToCourseSchema = new Schema<TAssignFacultiesToCourse>({
   course: { type: Schema.Types.ObjectId, ref: 'Course', unique: true },
-  faculties: [{ type: Schema.Types.ObjectId, ref: 'AcademicFaculty' }],
+  faculties: [{ type: Schema.Types.ObjectId, ref: 'Faculty' }],
 });
 
 /******* Course Model Static method *******/
