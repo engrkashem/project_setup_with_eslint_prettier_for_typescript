@@ -22,7 +22,6 @@ const createAdminValidationSchema = z.object({
         .optional(),
       presentAddress: z.string().min(1).trim(),
       permanentAddress: z.string().min(1).trim(),
-      academicDepartment: z.string(),
       profileImg: z.string().optional(),
     }),
   }),
