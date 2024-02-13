@@ -9,6 +9,52 @@ import { Course } from '../courses/course.model';
 import { Faculty } from '../faculties/faculty.model';
 import { hasTimeConflict } from './offeredCourse.utils';
 import QueryBuilder from '../../queryBuilder/QueryBuilder';
+import { Student } from '../students/student.model';
+
+const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
+  const offeredCourseQuery = new QueryBuilder(OfferedCourse.find(), query)
+    .filter()
+    .sort()
+    .paginate()
+    .fieldsLimit();
+
+  const result = await offeredCourseQuery.modelQuery;
+  const meta = await offeredCourseQuery.countTotal();
+
+  return {
+    meta,
+    result,
+  };
+};
+
+const getMyOfferedCoursesFromDB = async (userId: string) => {
+  // check if user exists
+  const isStudentExists = await Student.findOne({ id: userId });
+
+  if (!isStudentExists) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Student is not found.');
+  }
+
+  // find current ongoing semester that available now
+  const currentOngoingAvailableSemesters = await SemesterRegistration.findOne({
+    status: 'ONGOING',
+  });
+
+  return { currentOngoingAvailableSemesters };
+};
+
+const getSingleOfferedCourseFromDB = async (id: string) => {
+  const result = await OfferedCourse.findById(id).populate([
+    'semesterRegistration',
+    'academicSemester',
+    'academicFaculty',
+    'academicDepartment',
+    'course',
+    'faculty',
+  ]);
+
+  return result;
+};
 
 const createOfferedCourseIntoDB = async (payload: TOfferedCourse) => {
   // extract semester registration id from user requested data (payload)
@@ -180,30 +226,6 @@ const updateSingleOfferedCourseIntoDB = async (
   return result;
 };
 
-const getAllOfferedCoursesFromDB = async (query: Record<string, unknown>) => {
-  const offeredSemesterQuery = new QueryBuilder(OfferedCourse.find(), query)
-    .filter()
-    .sort()
-    .paginate()
-    .fieldsLimit();
-
-  const result = await offeredSemesterQuery.modelQuery;
-  return result;
-};
-
-const getSingleOfferedCourseFromDB = async (id: string) => {
-  const result = await OfferedCourse.findById(id).populate([
-    'semesterRegistration',
-    'academicSemester',
-    'academicFaculty',
-    'academicDepartment',
-    'course',
-    'faculty',
-  ]);
-
-  return result;
-};
-
 const deleteSingleOfferedCourseFromDB = async (id: string) => {
   // check if offered course exists
   const isOfferedCourseExists = await OfferedCourse.findById(id);
@@ -233,9 +255,10 @@ const deleteSingleOfferedCourseFromDB = async (id: string) => {
 };
 
 export const OfferedCourseServices = {
+  getAllOfferedCoursesFromDB,
+  getMyOfferedCoursesFromDB,
+  getSingleOfferedCourseFromDB,
   createOfferedCourseIntoDB,
   updateSingleOfferedCourseIntoDB,
-  getAllOfferedCoursesFromDB,
-  getSingleOfferedCourseFromDB,
   deleteSingleOfferedCourseFromDB,
 };

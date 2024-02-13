@@ -8,59 +8,65 @@ import {
 } from './student.interface';
 import userNameSchema from '../../schema/userName';
 
-// import validator from 'validator';
-
-// regex for email
-// const emailRegEx =
-//   // eslint-disable-next-line no-useless-escape
-//   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-
 //sub schemas
 
-const guardianSchema = new Schema<TGuardian>({
-  fatherName: {
-    type: String,
-    required: [true, "Fathers' name is required"],
-    trim: true,
+const guardianSchema = new Schema<TGuardian>(
+  {
+    fatherName: {
+      type: String,
+      required: [true, "Fathers' name is required"],
+      trim: true,
+    },
+    fatherOccupation: {
+      type: String,
+      required: [true, "Fathers' Occupation is required"],
+      trim: true,
+    },
+    fatherContactNo: {
+      type: String,
+      required: [true, "Fathers' contact number is required"],
+      trim: true,
+    },
+    motherName: { type: String, required: [true, "Mother's name is required"] },
+    motherContactNo: {
+      type: String,
+      required: [true, "Mother's contact number is required"],
+      trim: true,
+    },
+    motherOccupation: {
+      type: String,
+      required: [true, "Mother's occupation is required"],
+      trim: true,
+    },
   },
-  fatherOccupation: {
-    type: String,
-    required: [true, "Fathers' Occupation is required"],
-    trim: true,
+  {
+    _id: false,
   },
-  fatherContactNo: {
-    type: String,
-    required: [true, "Fathers' contact number is required"],
-    trim: true,
-  },
-  motherName: { type: String, required: [true, "Mother's name is required"] },
-  motherContactNo: {
-    type: String,
-    required: [true, "Mother's contact number is required"],
-    trim: true,
-  },
-  motherOccupation: {
-    type: String,
-    required: [true, "Mother's occupation is required"],
-    trim: true,
-  },
-});
+);
 
-const localGuardianSchema = new Schema<TLocalGuardian>({
-  name: { type: String, required: [true, "Local guardians' name is required"] },
-  contactNo: {
-    type: String,
-    required: [true, "Local guardians' contact number is required"],
-    trim: true,
+const localGuardianSchema = new Schema<TLocalGuardian>(
+  {
+    name: {
+      type: String,
+      required: [true, "Local guardians' name is required"],
+    },
+    contactNo: {
+      type: String,
+      required: [true, "Local guardians' contact number is required"],
+      trim: true,
+    },
+    occupation: {
+      type: String,
+      required: [true, "Local guardians' occupation is required"],
+      trim: true,
+    },
+    relationShipWithStudent: { type: String },
+    address: { type: String },
   },
-  occupation: {
-    type: String,
-    required: [true, "Local guardians' occupation is required"],
-    trim: true,
+  {
+    _id: false,
   },
-  relationShipWithStudent: { type: String },
-  address: { type: String },
-});
+);
 
 //main schema
 /*
@@ -96,15 +102,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, "Students' email is required"],
       trim: true,
       unique: true,
-
-      //using built-in validator
-      // match: [emailRegEx, '{VALUE}. Invalid email format'],
-
-      //third party: validator
-      // validate: {
-      //   validator: (email: string) => validator.isEmail(email),
-      //   message: '{VALUE} is not valid email address',
-      // },
     },
     contactNo: {
       type: String,
@@ -214,6 +211,14 @@ studentSchema.methods.isStudentExists = async function (id: string) {
 
   return existingStudent;
 };
+
+
+// import validator from 'validator';
+
+// regex for email
+// const emailRegEx =
+//   // eslint-disable-next-line no-useless-escape
+//   /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 */
 
 // creating static method
@@ -224,3 +229,14 @@ studentSchema.static('isStudentExists', async function isStudentExists(id) {
   return existingStudent;
 });
 */
+
+/**
+  //using built-in validator
+      // match: [emailRegEx, '{VALUE}. Invalid email format'],
+
+      //third party: validator
+      // validate: {
+      //   validator: (email: string) => validator.isEmail(email),
+      //   message: '{VALUE} is not valid email address',
+      
+ */
