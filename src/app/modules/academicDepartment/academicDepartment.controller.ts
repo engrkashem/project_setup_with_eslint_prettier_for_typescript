@@ -16,7 +16,9 @@ const createAcademicDepartment = handleAsyncRequest(async (req, res) => {
 });
 
 const getAllAcademicDepartments = handleAsyncRequest(async (req, res) => {
-  const result = await AcademicDepartmentServices.getAllAcademicDepartments();
+  const result = await AcademicDepartmentServices.getAllAcademicDepartments(
+    req.query,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

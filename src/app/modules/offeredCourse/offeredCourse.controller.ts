@@ -18,7 +18,10 @@ const getAllOfferedCourse = handleAsyncRequest(async (req, res) => {
 
 const getMyOfferedCourses = handleAsyncRequest(async (req, res) => {
   const userId = req.user.userId;
-  const result = await OfferedCourseServices.getMyOfferedCoursesFromDB(userId);
+  const result = await OfferedCourseServices.getMyOfferedCoursesFromDB(
+    userId,
+    req.query,
+  );
 
   sendResponse(res, {
     success: true,
