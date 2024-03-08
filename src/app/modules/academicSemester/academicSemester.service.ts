@@ -3,6 +3,7 @@ import AppError from '../../errors/AppError';
 import { AcademicSemesterNameCodeMapper } from './academicSemester.constant';
 import { TAcademicSemester } from './academicSemester.interface';
 import { AcademicSemester } from './academicSemester.model';
+import QueryBuilder from '../../queryBuilder/QueryBuilder';
 
 const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   // check if academic semester name and code are okay
@@ -19,10 +20,23 @@ const createAcademicSemesterIntoDB = async (payload: TAcademicSemester) => {
   return result;
 };
 
-const getAllAcademicSemesterFromDB = async () => {
-  const result = await AcademicSemester.find();
+const getAllAcademicSemesterFromDB = async (query: Record<string, unknown>) => {
+  const academicSemesterQuery = new QueryBuilder<TAcademicSemester>(
+    AcademicSemester.find(),
+    query,
+  )
+    .search([])
+    .filter()
+    .sort()
+    .paginate()
+    .fieldsLimit();
 
-  return result;
+  const result = await academicSemesterQuery.modelQuery;
+  const meta = await academicSemesterQuery.countTotal();
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleAcademicSemester = async (semesterId: string) => {

@@ -22,7 +22,8 @@ const getAllCourse = handleAsyncRequest(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'All Course retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
