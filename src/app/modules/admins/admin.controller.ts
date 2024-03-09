@@ -10,7 +10,8 @@ const getAllAdmins = handleAsyncRequest(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Admins retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

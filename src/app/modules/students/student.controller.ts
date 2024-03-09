@@ -10,8 +10,9 @@ const getAllStudents = handleAsyncRequest(async (req, res) => {
   sendResponse(res, {
     success: true,
     message: 'Student retrieve request is success',
-    data: result,
     statusCode: httpStatus.OK,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

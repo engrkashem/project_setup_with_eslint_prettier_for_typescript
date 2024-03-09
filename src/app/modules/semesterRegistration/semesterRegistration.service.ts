@@ -129,7 +129,12 @@ const getAllSemesterRegistrationFromDB = async (
 
   const result = await semesterRegistrationQuery.modelQuery;
 
-  return result;
+  const meta = await semesterRegistrationQuery.countTotal();
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const deleteSingleSemesterRegistrationFromDB = async (id: string) => {

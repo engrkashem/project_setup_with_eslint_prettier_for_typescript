@@ -10,7 +10,8 @@ const getAllFaculties = handleAsyncRequest(async (req, res) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Faculties retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
